@@ -1,5 +1,5 @@
 from flask import Flask,render_template,request
-from weather import get_current_weather
+from weather import get_current_weather,get_current_city
 from waitress import serve
 
 app= Flask(__name__)
@@ -14,14 +14,23 @@ def index():
 def get_weather():
     city=request.args.get('city')
 
+    default_city_message=""
+
     if not bool(city.strip()):
-        city="Tiruchengode"
+        city=get_current_city()
+        default_city_message="No city specified. Returning weather data for current city"
+    else:
+        default_city_message=""
 
     weather_data=get_current_weather(city)
     
     if not weather_data['cod'] == 200:
-        return render_template("city-not-found.html")
-    return render_template("weather.html",title=weather_data["name"],status=weather_data["weather"][0]["description"].capitalize(),temp=f"{weather_data['main']['temp']:.1f}",feels_like=f"{weather_data['main']['feels_like']:.1f}")
+        default_city_message="City not found. Returning weather data for current city"
+        city=get_current_city()
+    
+    weather_data=get_current_weather(city)
+    
+    return render_template("weather.html",title=weather_data["name"],status=weather_data["weather"][0]["description"].capitalize(),temp=f"{weather_data['main']['temp']:.1f}",feels_like=f"{weather_data['main']['feels_like']:.1f}",default_message=default_city_message)
 
 
 if __name__ == '__main__':

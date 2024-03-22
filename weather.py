@@ -23,6 +23,7 @@ def get_current_city():
         # Get the city name using reverse geocoding
         city = location.city
         print("Current city:", city)
+        return city
     else:
         print("Chennai")
 
